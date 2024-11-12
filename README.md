@@ -244,3 +244,4 @@ Drøft og vurder implikasjonene i lys av følgende DevOps-prinsipper:
 I besvarelsen bør du trekke frem styrker og svakheter ved hver tilnærming, med tanke på de nevnte DevOps-aspektene.
 
 ## LYKKE TIL OG HA DET GØY MED OPPGAVEN!
+# DevOps_eksamen2024
