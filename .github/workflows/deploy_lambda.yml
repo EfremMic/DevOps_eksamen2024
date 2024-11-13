@@ -1,0 +1,76 @@
+name: Deploy SAM Application
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      AWS_REGION: eu-west-1
+      ACTIONS_RUNNER_DEBUG: true
+
+    steps:
+      # Step 1: Checkout Code from GitHub
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      # Step 2: Set up Python environment
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.9'
+
+      # Step 3: Install AWS SAM CLI
+      - name: Install AWS SAM CLI
+        run: |
+          pip install aws-sam-cli
+
+      # Step 4: Configure AWS Credentials
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      # Step 5: Check Required Files in the project directory
+      - name: Check Required Files
+        run: |
+          echo "Checking required files..."
+          if [ ! -d "exam-oppgave-1" ]; then
+            echo "Required directory exam-oppgave-1 is missing!"
+            exit 1
+          fi
+          if [ ! -f "exam-oppgave-1/template.yaml" ]; then
+            echo "Required template.yaml file is missing in exam-oppgave-1 directory!"
+            exit 1
+          fi
+          echo "Required files found, proceeding with deployment."
+
+      # Step 6: Build the SAM application
+      - name: Build SAM Application
+        working-directory: exam-oppgave-1
+        run: |
+          sam build
+
+      # Step 7: Deploy the SAM application to AWS
+      - name: Deploy SAM Application
+        working-directory: exam-oppgave-1
+        run: |
+          sam deploy --no-confirm-changeset --stack-name exam-oppgave-1 --capabilities CAPABILITY_IAM --force-upload --no-fail-on-empty-changeset || echo "No changes to deploy"
+
+      # Step 8: Fetch the API Gateway URL
+      - name: Fetch API Gateway URL
+        id: fetch_api_url
+        run: |
+          api_url=$(aws cloudformation describe-stacks --stack-name exam-oppgave-1 --region ${{ env.AWS_REGION }} --query "Stacks[0].Outputs[?OutputKey=='ImageGenerationApi'].OutputValue" --output text)
+          echo "API Gateway URL is $api_url"
+          echo "API_GATEWAY_URL=$api_url" >> $GITHUB_ENV
+
+      # Step 9: Display the API Gateway URL
+      - name: Display API Gateway URL
+        run: |
+          echo "Your API Gateway URL is: ${{ env.API_GATEWAY_URL }}"
