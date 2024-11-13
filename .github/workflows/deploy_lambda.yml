@@ -62,15 +62,15 @@ jobs:
         run: |
           sam deploy --no-confirm-changeset --stack-name exam-oppgave-1 --capabilities CAPABILITY_IAM --force-upload --no-fail-on-empty-changeset || echo "No changes to deploy"
 
-      # Step 8: Fetch and Display the API URL
-      - name: Fetch and Display API URL
+      # Step 8: Fetch the API Gateway URL
+      - name: Fetch API Gateway URL
         id: fetch_api_url
         run: |
           api_url=$(aws cloudformation describe-stacks --stack-name exam-oppgave-1 --region ${{ env.AWS_REGION }} --query "Stacks[0].Outputs[?OutputKey=='ImageGenerationApi'].OutputValue" --output text)
           echo "API Gateway URL is $api_url"
-          echo "API Gateway URL is $api_url" >> $GITHUB_ENV
+          echo "API_GATEWAY_URL=$api_url" >> $GITHUB_ENV
 
-      # Step 9: Display API URL in the console
-      - name: Display API URL
+      # Step 9: Display the API Gateway URL
+      - name: Display API Gateway URL
         run: |
           echo "Your API Gateway URL is: ${{ env.API_GATEWAY_URL }}"
