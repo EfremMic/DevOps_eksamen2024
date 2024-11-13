@@ -1,0 +1,41 @@
+name: SAM Deploy Workflow
+
+# Trigger the workflow when pushing to the main branch
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest  # Choose the operating system for the GitHub runner
+    
+    steps:
+      # Step 1: Checkout the repository code
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      # Step 2: Set up AWS credentials using GitHub Secrets
+      - name: Set up AWS CLI
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}  # AWS Access Key stored in GitHub Secrets
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}  # AWS Secret Access Key stored in GitHub Secrets
+          aws-region: eu-west-1  # Specify your AWS region (adjust if needed)
+
+      # Step 3: Install the AWS SAM CLI on the runner
+      - name: Install SAM CLI
+        run: |
+          curl -Lo sam-installation https://github.com/aws/aws-sam-cli/releases/download/v1.47.0/aws-sam-cli-linux-x86_64.zip
+          unzip sam-installation -d sam-installation
+          sudo ./sam-installation/install
+
+      # Step 4: Build the SAM application
+      - name: Build SAM application
+        run: sam build  # This command packages and prepares your Lambda function for deployment
+
+      # Step 5: Deploy the SAM application
+      - name: Deploy SAM application
+        run: |
+          sam deploy --no-confirm-changeset --no-fail-on-empty-changeset --stack-name couch-explorers-lambda-rem-2024 --capabilities CAPABILITY_IAM
+        # The above command deploys your SAM application with the stack name and IAM capabilities
