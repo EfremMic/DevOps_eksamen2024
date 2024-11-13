@@ -1,0 +1,58 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  couch-explorers-lambda
+
+  SAM Template for the Couch Explorers Lambda function.
+
+Globals:
+  Function:
+    Timeout: 15  # Increased timeout to allow enough time for processing
+    MemorySize: 128
+    Tracing: Active
+    LoggingConfig:
+      LogFormat: JSON
+  Api:
+    TracingEnabled: true
+
+Resources:
+  ImageGenerationFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: .  # Root directory where generate_image.py is located
+      Handler: generate_image.lambda_handler  # Update this to point to your actual Lambda handler
+      Runtime: python3.9
+      Architectures:
+        - x86_64
+      Environment:
+        Variables:
+          BUCKET_NAME: "pgr301-couch-explorers-erm"  # Correct bucket name
+      Policies:
+        - Statement:
+            - Effect: Allow
+              Action: "bedrock:InvokeModel"
+              Resource: "arn:aws:bedrock:us-east-1::foundation-model/amazon.titan-image-generator-v1"
+            - Effect: Allow
+              Action:
+                - "s3:PutObject"
+                - "s3:GetObject"
+              Resource: "arn:aws:s3:::pgr301-couch-explorers-erm/*"
+      Events:
+        ApiGateway:
+          Type: Api
+          Properties:
+            Path: /generate-image
+            Method: POST
+
+Outputs:
+  ImageGenerationApi:
+    Description: API Gateway endpoint URL for the Image Generation Lambda function
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/generate-image/"
+  
+  ImageGenerationFunction:
+    Description: Image Generation Lambda Function ARN
+    Value: !GetAtt ImageGenerationFunction.Arn
+
+  ImageGenerationFunctionIamRole:
+    Description: IAM Role created for the Image Generation function
+    Value: !GetAtt ImageGenerationFunctionRole.Arn
