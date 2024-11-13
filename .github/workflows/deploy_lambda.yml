@@ -1,6 +1,5 @@
-name: SAM Deploy Workflow
+name: Deploy SAM Application
 
-# Trigger the workflow when pushing to the main branch
 on:
   push:
     branches:
@@ -8,34 +7,53 @@ on:
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest  # Choose the operating system for the GitHub runner
-    
+    runs-on: ubuntu-latest
+    env:
+      ACTIONS_RUNNER_DEBUG: true
+
     steps:
-      # Step 1: Checkout the repository code
       - name: Checkout code
         uses: actions/checkout@v2
 
-      # Step 2: Set up AWS credentials using GitHub Secrets
-      - name: Set up AWS CLI
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.8'
+
+      - name: Install AWS SAM CLI
+        run: |
+          pip install aws-sam-cli
+
+      - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}  # AWS Access Key stored in GitHub Secrets
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}  # AWS Secret Access Key stored in GitHub Secrets
-          aws-region: eu-west-1  # Specify your AWS region (adjust if needed)
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: eu-west-1
 
-      # Step 3: Install the AWS SAM CLI on the runner
-      - name: Install SAM CLI
+      - name: Check Required Files
         run: |
-          curl -Lo sam-installation https://github.com/aws/aws-sam-cli/releases/download/v1.47.0/aws-sam-cli-linux-x86_64.zip
-          unzip sam-installation -d sam-installation
-          sudo ./sam-installation/install
+          if [ ! -d "oppgave-1-2024" ]; then
+            echo "Required directory oppgave-1-2024 is missing!"
+            exit 1
+          fi
+          if [ ! -f "oppgave-1-2024/template.yaml" ]; then
+            echo "Required template.yaml file is missing in oppgave-1-2024 directory!"
+            exit 1
 
-      # Step 4: Build the SAM application
-      - name: Build SAM application
-        run: sam build  # This command packages and prepares your Lambda function for deployment
-
-      # Step 5: Deploy the SAM application
-      - name: Deploy SAM application
+      - name: Deploy SAM Application
+        working-directory: exam-oppgave-1
         run: |
-          sam deploy --no-confirm-changeset --no-fail-on-empty-changeset --stack-name couch-explorers-lambda-rem-2024 --capabilities CAPABILITY_IAM
-        # The above command deploys your SAM application with the stack name and IAM capabilities
+          sam build
+          sam deploy --no-confirm-changeset --stack-name exam-oppgave-1 --capabilities CAPABILITY_IAM --force-upload || echo "No changes to deploy"
+
+      - name: Fetch and Display API URL
+        id: fetch_api_url
+        run: |
+          api_url=$(aws cloudformation describe-stacks --stack-name exam-oppgave-1 --region eu-west-1 --query "Stacks[0].Outputs[?OutputKey=='ImageGenerationApi'].OutputValue" --output text)
+          echo "API Gateway URL is $api_url"
+          echo "::set-output name=api_url::$api_url"
+
+      - name: Display API URL
+        run: |
+          echo "Your API Gateway URL is: ${{ steps.fetch_api_url.outputs.api_url }}"
