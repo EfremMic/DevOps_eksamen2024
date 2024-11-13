@@ -23,18 +23,12 @@ jobs:
         with:
           python-version: '3.9'
 
-      # Step 3: Install Docker
-      - name: Install Docker
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y docker.io
-
-      # Step 4: Install AWS SAM CLI
+      # Step 3: Install AWS SAM CLI
       - name: Install AWS SAM CLI
         run: |
           pip install aws-sam-cli
 
-      # Step 5: Configure AWS Credentials
+      # Step 4: Configure AWS Credentials
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
@@ -42,7 +36,7 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
 
-      # Step 6: Check Required Files in the project directory
+      # Step 5: Check Required Files in the project directory
       - name: Check Required Files
         run: |
           echo "Checking required files..."
@@ -56,19 +50,19 @@ jobs:
           fi
           echo "Required files found, proceeding with deployment."
 
-      # Step 7: Build the SAM application using Docker (local emulation)
-      - name: Build SAM Application using Docker (local emulation)
+      # Step 6: Build the SAM application
+      - name: Build SAM Application
         working-directory: exam-oppgave-1
         run: |
-          docker run --rm -v $PWD:/app -w /app amazon/aws-sam-cli-build-image python3.9 sam build
+          sam build
 
-      # Step 8: Deploy the SAM application to AWS
+      # Step 7: Deploy the SAM application to AWS
       - name: Deploy SAM Application
         working-directory: exam-oppgave-1
         run: |
           sam deploy --no-confirm-changeset --stack-name exam-oppgave-1 --capabilities CAPABILITY_IAM --force-upload --no-fail-on-empty-changeset || echo "No changes to deploy"
 
-      # Step 9: Fetch and Display the API URL
+      # Step 8: Fetch and Display the API URL
       - name: Fetch and Display API URL
         id: fetch_api_url
         run: |
@@ -76,7 +70,7 @@ jobs:
           echo "API Gateway URL is $api_url"
           echo "API Gateway URL is $api_url" >> $GITHUB_ENV
 
-      # Step 10: Display API URL in the console
+      # Step 9: Display API URL in the console
       - name: Display API URL
         run: |
           echo "Your API Gateway URL is: ${{ env.API_GATEWAY_URL }}"
