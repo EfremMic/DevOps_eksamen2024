@@ -10,7 +10,7 @@ s3_client = boto3.client("s3")
 model_id = "amazon.titan-image-generator-v1"
 
 # Get the S3 bucket name from environment variable
-bucket_name = os.getenv("BUCKET_NAME")
+bucket_name = os.environ.get("BUCKET_NAME")
 
 def lambda_handler(event, context):
     # Parse the incoming request to get the prompt
