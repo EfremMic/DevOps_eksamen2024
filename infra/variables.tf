@@ -1,9 +1,5 @@
-variable "AWS_ACCESS_KEY" {
-  description = "AWS Access Key"
+variable "aws_region" {
+  description = "AWS Region"
   type        = string
-}
-
-variable "AWS_SECRET_KEY" {
-  description = "AWS Secret Key"
-  type        = string
+  default     = "eu-west-1"
 }
