@@ -1,6 +1,6 @@
 # Define SQS Queue for Image Processing
 resource "aws_sqs_queue" "image_queue" {
-  name                       = "image-generation-queue"
+  name                       = "image-queue-candidate-86"
   visibility_timeout_seconds = 30
   message_retention_seconds  = 345600
   max_message_size           = 262144
@@ -35,15 +35,20 @@ resource "aws_iam_role" "lambda_execution_role" {
   }
 }
 
-# IAM Policy for Lambda to Access SQS and S3
-resource "aws_iam_policy" "lambda_sqs_policy" {
-  name        = "lambda-sqs-policy"
-  description = "IAM policy for Lambda to access SQS and S3"
+# IAM Policy for Lambda to Access SQS, S3, and Bedrock
+resource "aws_iam_policy" "lambda_image_processing_policy" {
+  name        = "lambda-image-processing-policy"
+  description = "IAM policy for Lambda to access SQS, S3, and Bedrock"
   policy      = jsonencode({
     Version = "2012-10-17"
     Statement = [
       {
-        Action   = ["sqs:SendMessage", "sqs:ReceiveMessage", "sqs:DeleteMessage", "sqs:GetQueueAttributes"]
+        Action   = [
+          "sqs:SendMessage",
+          "sqs:ReceiveMessage",  # Allow Lambda to receive messages from SQS
+          "sqs:DeleteMessage",
+          "sqs:GetQueueAttributes"
+        ]
         Effect   = "Allow"
         Resource = aws_sqs_queue.image_queue.arn
       },
@@ -51,25 +56,31 @@ resource "aws_iam_policy" "lambda_sqs_policy" {
         Action   = ["s3:PutObject", "s3:GetObject"]
         Effect   = "Allow"
         Resource = "arn:aws:s3:::pgr301-couch-explorers-erm/*"
+      },
+      {
+        Action   = ["bedrock:InvokeModel"]
+        Effect   = "Allow"
+        Resource = "arn:aws:bedrock:us-east-1::foundation-model/amazon.titan-image-generator-v1"
       }
     ]
   })
 }
 
-# Attach IAM Policy to Lambda Execution Role
+# Attach the IAM policy to the Lambda Execution Role
 resource "aws_iam_role_policy_attachment" "lambda_policy_attachment" {
   role       = aws_iam_role.lambda_execution_role.name
-  policy_arn = aws_iam_policy.lambda_sqs_policy.arn
+  policy_arn = aws_iam_policy.lambda_image_processing_policy.arn  # Attach new policy
 }
 
+# Attach AWS managed policy for basic Lambda execution
 resource "aws_iam_role_policy_attachment" "basic_execution_policy_attachment" {
   role       = aws_iam_role.lambda_execution_role.name
-  policy_arn = "arn:aws:iam::aws:policy/AWSLambdaBasicExecutionRole"
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
 }
 
-# Call the Lambda Module
+# Lambda Module
 module "lambda_module" {
-  source          = "./modules/lambda_module"
-  lambda_role_arn = aws_iam_role.lambda_execution_role.arn  # Direct reference to the role ARN
-  sqs_queue_arn   = aws_sqs_queue.image_queue.arn
+  source            = "./modules/lambda_module"
+  lambda_role_arn   = aws_iam_role.lambda_execution_role.arn
+  sqs_queue_arn     = aws_sqs_queue.image_queue.arn
 }
