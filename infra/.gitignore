@@ -1,10 +1,6 @@
-# Terraform state files
-terraform.tfstate
-terraform.tfstate.backup
-
-# Terraform plugin and lock files
+*.zip
+terraform.tfvars
 .terraform/
 .terraform.lock.hcl
-
-# Ignore ZIP files if they are generated in the local environment
-*.zip
+__pycache__/
+*.pyc
