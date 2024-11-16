@@ -12,46 +12,83 @@ jobs:
       AWS_REGION: eu-west-1
 
     steps:
-      - name: Checkout code
+      # Step 1: Checkout the repository
+      - name: 🛠️ Checkout code
         uses: actions/checkout@v2
 
-      - name: Set up Python
+      # Step 2: Set up Python environment
+      - name: 🐍 Set up Python 3.9
         uses: actions/setup-python@v2
         with:
           python-version: '3.9'
 
-      - name: Install AWS SAM CLI
+      # Step 3: Install AWS SAM CLI
+      - name: 📦 Install AWS SAM CLI
         run: |
+          echo "Installing SAM CLI..."
           pip install aws-sam-cli
+          sam --version
 
-      - name: Configure AWS Credentials
+      # Step 4: Configure AWS credentials
+      - name: 🔐 Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
 
-      - name: Build SAM Application
+      # Step 5: Build the SAM application
+      - name: 🏗️ Build SAM Application
         working-directory: exam-oppgave-1
         run: |
+          echo "Building the SAM application..."
           sam build
 
-      - name: Deploy SAM Application
+      # Step 6: Deploy the SAM application to AWS
+      - name: 🚀 Deploy SAM Application
         working-directory: exam-oppgave-1
         run: |
-          sam deploy --no-confirm-changeset --stack-name couch-explorers-lambda-rem-2024 --capabilities CAPABILITY_IAM --force-upload --no-fail-on-empty-changeset || echo "No changes to deploy"
+          echo "Deploying the SAM application..."
+          sam deploy --no-confirm-changeset \
+            --stack-name couch-explorers-lambda-rem-2024 \
+            --capabilities CAPABILITY_IAM \
+            --force-upload \
+            --no-fail-on-empty-changeset || echo "No changes to deploy"
 
-      - name: Fetch and Display API Gateway URL
+      # Step 7: Fetch API Gateway URL
+      - name: 🌐 Fetch API Gateway URL
+        id: fetch_api_url
         run: |
-          echo "Fetching API Gateway URL..."
-          api_url=$(aws cloudformation describe-stacks --stack-name couch-explorers-lambda-rem-2024 --region ${{ env.AWS_REGION }} --query "Stacks[0].Outputs[?OutputKey=='ImageGenerationApi'].OutputValue" --output text)
-          echo "API Gateway URL is: $api_url"
+          echo "Fetching API Gateway URL from CloudFormation..."
+          api_url=$(aws cloudformation describe-stacks \
+            --stack-name couch-explorers-lambda-rem-2024 \
+            --region ${{ env.AWS_REGION }} \
+            --query "Stacks[0].Outputs[?OutputKey=='ImageGenerationApi'].OutputValue" \
+            --output text)
+          if [ -z "$api_url" ]; then
+            echo "::error::Error: API Gateway URL not found in stack outputs!"
+            exit 1
+          fi
+          echo "API Gateway URL: $api_url"
           echo "API_GATEWAY_URL=$api_url" >> $GITHUB_ENV
 
-      - name: Debug CloudFormation Outputs
+      # Step 8: Debug CloudFormation Outputs
+      - name: 🛠️ Debug CloudFormation Outputs
         run: |
-          aws cloudformation describe-stacks --stack-name couch-explorers-lambda-rem-2024 --region ${{ env.AWS_REGION }} --query "Stacks[0].Outputs" --output table
+          echo "Fetching all CloudFormation stack outputs for debugging..."
+          aws cloudformation describe-stacks \
+            --stack-name couch-explorers-lambda-rem-2024 \
+            --region ${{ env.AWS_REGION }} \
+            --query "Stacks[0].Outputs" \
+            --output table
 
-      - name: Display API Gateway URL
+      # Step 9: Display API Gateway URL
+      - name: 📢 Display Deployment Outputs
         run: |
-          echo "Your API Gateway URL is: ${{ env.API_GATEWAY_URL }}"
+          echo "======================================"
+          echo "🚀 Deployment Summary"
+          echo "======================================"
+          echo "AWS Region: ${{ env.AWS_REGION }}"
+          echo "Stack Name: couch-explorers-lambda-rem-2024"
+          echo "API Gateway URL: ${{ env.API_GATEWAY_URL }}"
+          echo "======================================"
