@@ -57,3 +57,4 @@ def lambda_handler(event, context):
             "s3_uri": f"s3://{BUCKET_NAME}/{s3_key}"
         })
     }
+

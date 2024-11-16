@@ -48,3 +48,7 @@ Resources:
                 Action:
                   - "bedrock:InvokeModel"
                 Resource: "*"
+Outputs:
+  ApiGatewayEndpoint:
+    Description: "API Gateway endpoint URL for the GenerateImageFunction"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/generate-image/"
