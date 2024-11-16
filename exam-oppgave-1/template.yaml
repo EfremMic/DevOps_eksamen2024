@@ -1,56 +1,50 @@
-AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
-Description: >
-  couch-explorers-lambda
-
-  SAM Template for the Couch Explorers Lambda function.
-
-Globals:
-  Function:
-    Timeout: 15  # Increased timeout to allow enough time for processing
-    MemorySize: 128
-    Tracing: Active
-  Api:
-    TracingEnabled: true
 
 Resources:
-  ImageGenerationFunction:
+  GenerateImageFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: .  # Updated to the new folder name
-      Handler: generate_image.lambda_handler  # Lambda handler function
+      CodeUri: .
+      Handler: app.lambda_handler
       Runtime: python3.9
-      Architectures:
-        - x86_64
+      MemorySize: 512
+      Timeout: 30
+      Role: !GetAtt GenerateImageRole.Arn
       Environment:
         Variables:
-          BUCKET_NAME: "pgr301-couch-explorers-erm"  # Reference to the existing S3 bucket
-      Policies:
-        - Statement:
-            - Effect: Allow
-              Action: "bedrock:InvokeModel"
-              Resource: "arn:aws:bedrock:us-east-1::foundation-model/amazon.titan-image-generator-v1"
-            - Effect: Allow
-              Action:
-                - "s3:PutObject"
-                - "s3:GetObject"
-              Resource: "arn:aws:s3:::pgr301-couch-explorers-erm/*"
+          S3_BUCKET: pgr301-couch-explorers  # Reference the existing bucket
+          MODEL_ID: "amazon.titan-image-generator-v1"
       Events:
-        ApiGateway:
+        GenerateImageAPI:
           Type: Api
           Properties:
             Path: /generate-image
-            Method: POST
+            Method: post
 
-Outputs:
-  ImageGenerationApi:
-    Description: API Gateway endpoint URL for the Image Generation Lambda function
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/generate-image/"
-  
-  ImageGenerationFunction:
-    Description: Image Generation Lambda Function ARN
-    Value: !GetAtt ImageGenerationFunction.Arn
-
-  ImageGenerationFunctionIamRole:
-    Description: IAM Role created for the Image Generation function
-    Value: !GetAtt ImageGenerationFunctionRole.Arn
+  GenerateImageRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: S3WritePolicy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - "s3:PutObject"
+                Resource: "arn:aws:s3:::pgr301-couch-explorers/*"
+        - PolicyName: BedrockInvokePolicy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - "bedrock:InvokeModel"
+                Resource: "*"

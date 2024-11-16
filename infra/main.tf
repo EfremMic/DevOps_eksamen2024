@@ -1,93 +1,91 @@
-# infra/main.tf
-provider "aws" {
-  region = "eu-west-1"
-}
-
 terraform {
-  required_version = ">= 1.9"
-  required_providers {
-    aws = {
-      source  = "hashicorp/aws"
-      version = "5.74.0"
-    }
-  }
-   backend "s3" {
-    bucket = "pgr301-2024-terraform-state"
-    key    = "lambda_sqs_state"
-    region = "eu-west-1" 
+  backend "s3" {
+    bucket = "pgr301-2024-terraform-state"  # Your S3 bucket
+    key    = "lambda_sqs_state.tfstate"     # Path to the state file in the bucket
+    region = "eu-west-1"                    # AWS region
+    encrypt = true                          # Enable encryption for state file
   }
 }
 
+resource "aws_iam_role" "lambda_execution_role" {
+  name = "lambda_execution_role"
 
-
-# Create the SQS Queue
-resource "aws_sqs_queue" "image_generation_queue" {
-  name = "image_generation_queue"
-}
-
-# Create the IAM role for Lambda
-resource "aws_iam_role" "lambda_role" {
-  name = "lambda_image_generation_role"
   assume_role_policy = jsonencode({
-    Version = "2012-10-17",
+    Version = "2012-10-17"
     Statement = [
       {
-        Action = "sts:AssumeRole",
-        Effect = "Allow",
+        Effect = "Allow"
         Principal = {
           Service = "lambda.amazonaws.com"
-        },
-      },
-    ],
+        }
+        Action = "sts:AssumeRole"
+      }
+    ]
   })
+
+  lifecycle {
+    prevent_destroy = true  # Prevent accidental deletion
+    ignore_changes  = [assume_role_policy]
+  }
 }
 
-# Attach policy for SQS and S3 permissions
-resource "aws_iam_policy_attachment" "lambda_policy_attach" {
-  name       = "lambda-policy-attach"
-  roles      = [aws_iam_role.lambda_role.name]
-  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
-}
+resource "aws_iam_policy" "lambda_policy" {
+  name        = "lambda-image-processing-policy"
+  description = "Policy to allow Lambda to access SQS, S3, and Bedrock model"
 
-resource "aws_iam_role_policy" "lambda_s3_sqs_policy" {
-  name = "lambda_s3_sqs_policy"
-  role = aws_iam_role.lambda_role.id
   policy = jsonencode({
-    Version = "2012-10-17",
+    Version = "2012-10-17"
     Statement = [
       {
-        Effect   = "Allow",
-        Action   = ["sqs:ReceiveMessage", "sqs:DeleteMessage", "sqs:GetQueueAttributes"],
-        Resource = aws_sqs_queue.image_generation_queue.arn
+        Effect   = "Allow"
+        Action   = ["sqs:ReceiveMessage", "sqs:DeleteMessage", "sqs:GetQueueAttributes"]
+        Resource = "arn:aws:sqs:eu-west-1:123456789012:image-processing-queue"  # Replace with your SQS ARN
       },
       {
-        Effect   = "Allow",
-        Action   = ["s3:PutObject"],
-        Resource = "arn:aws:s3:::pgr301-couch-explorers/*"
+        Effect   = "Allow"
+        Action   = ["s3:PutObject"]
+        Resource = "arn:aws:s3:::pgr301-couch-explorers-erm/*"  # Reference the existing bucket
       },
-    ],
+      {
+        Effect   = "Allow"
+        Action   = ["bedrock:InvokeModel"]
+        Resource = "arn:aws:bedrock:us-east-1::foundation-model/amazon.titan-image-generator-v1"  # Replace with your Bedrock model ARN and region if necessary
+      }
+    ]
   })
 }
 
-# Create the Lambda function
-resource "aws_lambda_function" "image_generator_lambda" {
-  function_name = "image_generator_lambda"
-  role          = aws_iam_role.lambda_role.arn
-  handler       = "lambda_function.lambda_handler"
-  runtime       = "python3.9"
-  filename      = "lambda_sqs.zip"  # Path to your zipped Lambda code
-  timeout       = 20
+
+resource "aws_iam_role_policy_attachment" "lambda_role_policy_attachment" {
+  role       = aws_iam_role.lambda_execution_role.name
+  policy_arn = aws_iam_policy.lambda_policy.arn
+}
+
+# Upload lambda_sqs.zip to S3
+resource "aws_s3_object" "lambda_code" {
+  bucket = "pgr301-couch-explorers-erm"        # Your existing S3 bucket
+  key    = "lambda_code/image_sqs_lambda.zip"  # Specify the path within the bucket
+  source = "${path.module}/lambda_sqs.zip"     # Local path to lambda_sqs.zip
+  acl    = "private"
+}
+
+# Lambda function using the uploaded S3 object
+resource "aws_lambda_function" "image_processing_lambda" {
+  function_name = "image-processing-lambda"
+  s3_bucket     = "pgr301-couch-explorers-erm"      # Existing bucket
+  s3_key        = aws_s3_object.lambda_code.key     # Refer to the uploaded object key
+
+  handler = "lambda_sqs.lambda_handler"
+  runtime = "python3.8"
+  role    = aws_iam_role.lambda_execution_role.arn  # Use the IAM role ARN here
 
   environment {
     variables = {
-      BUCKET_NAME = "pgr301-couch-explorers"
+      BUCKET_NAME = "pgr301-couch-explorers-erm"
     }
   }
-}
+  timeout = 30 
 
-# SQS and Lambda Integration
-resource "aws_lambda_event_source_mapping" "sqs_to_lambda" {
-  event_source_arn = aws_sqs_queue.image_generation_queue.arn
-  function_name    = aws_lambda_function.image_generator_lambda.arn
-  batch_size       = 5
+  # Ensure Lambda function is created only after the S3 object is uploaded
+  depends_on = [aws_s3_object.lambda_code]
 }
