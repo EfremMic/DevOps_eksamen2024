@@ -52,9 +52,11 @@ resource "aws_iam_policy" "lambda_sqs_s3_policy" {
       # SQS Permissions
       {
         Action = [
+          "sqs:SendMessage",
           "sqs:ReceiveMessage",
           "sqs:DeleteMessage",
-          "sqs:GetQueueAttributes"
+          "sqs:GetQueueAttributes",
+          "sqs:GetQueueUrl"
         ]
         Effect   = "Allow"
         Resource = aws_sqs_queue.image_processing_queue.arn
