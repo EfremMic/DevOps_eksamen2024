@@ -1,4 +1,6 @@
 *.zip
+# Allow tracking of lambda_sqs.zip
+!lambda/lambda_sqs.zip
 terraform.tfvars
 .terraform/
 .terraform.lock.hcl
