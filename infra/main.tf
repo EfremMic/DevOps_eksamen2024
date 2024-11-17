@@ -97,8 +97,9 @@ resource "aws_lambda_function" "image_processor" {
   runtime          = "python3.9"
   handler          = "lambda_sqs.lambda_handler"
   role             = aws_iam_role.lambda_execution_role.arn
-  filename         = "infra/lambda/lambda_sqs.zip"
-  source_code_hash = filebase64sha256("infra/lambda/lambda_sqs.zip")
+  filename         = "lambda/lambda_sqs.zip"
+  source_code_hash = filebase64sha256("lambda/lambda_sqs.zip")
+
 
   environment {
     variables = {
@@ -116,3 +117,4 @@ resource "aws_lambda_event_source_mapping" "sqs_to_lambda" {
   function_name    = aws_lambda_function.image_processor.arn
   batch_size       = 10
 }
+

@@ -34,11 +34,11 @@ jobs:
         with:
           terraform_version: 1.9.0
 
-      # Step 4: Create Lambda Zip
+      # Step 4: Verify Lambda Directory and Create Zip
       - name: Create Lambda Zip
-        working-directory: infra/lambda
-        run: |
-          zip -r lambda_sqs.zip lambda_sqs.py
+        working-directory: lambda
+        run: zip lambda_sqs.zip lambda_sqs.py
+
 
       # Step 5: Terraform Init
       - name: Terraform Init
