@@ -1,0 +1,20 @@
+{
+  "Records": [
+    {
+      "messageId": "1",
+      "receiptHandle": "abc",
+      "body": "Generate an image of a serene sunset over the ocean",
+      "attributes": {
+        "ApproximateReceiveCount": "1",
+        "SentTimestamp": "1670000000000",
+        "SenderId": "123456789012",
+        "ApproximateFirstReceiveTimestamp": "1670000000000"
+      },
+      "messageAttributes": {},
+      "md5OfBody": "e99a18c428cb38d5f260853678922e03",
+      "eventSource": "aws:sqs",
+      "eventSourceARN": "arn:aws:sqs:eu-west-1:244530008913:image-processing-queue-candidate-86",
+      "awsRegion": "eu-west-1"
+    }
+  ]
+}
