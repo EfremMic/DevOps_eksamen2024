@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - main
-      - '*'
+      - '**'
 
 jobs:
   terraform:
@@ -34,19 +34,25 @@ jobs:
         with:
           terraform_version: 1.9.0
 
-      # Step 4: Terraform Init
+      # Step 4: Create Lambda Zip
+      - name: Create Lambda Zip
+        working-directory: infra/lambda
+        run: |
+          zip -r lambda_sqs.zip lambda_sqs.py
+
+      # Step 5: Terraform Init
       - name: Terraform Init
-        working-directory: infra # Specify the correct directory
+        working-directory: infra
         run: terraform init
 
-      # Step 5: Terraform Plan (For non-main branches)
+      # Step 6: Terraform Plan (For non-main branches)
       - name: Terraform Plan
         if: github.ref != 'refs/heads/main'
-        working-directory: infra # Specify the correct directory
+        working-directory: infra
         run: terraform plan
 
-      # Step 6: Terraform Apply (For main branch)
+      # Step 7: Terraform Apply (For main branch)
       - name: Terraform Apply
         if: github.ref == 'refs/heads/main'
-        working-directory: infra # Specify the correct directory
+        working-directory: infra
         run: terraform apply -auto-approve
