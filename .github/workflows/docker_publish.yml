@@ -1,4 +1,4 @@
-name: Publish Docker Image to Docker Hub
+name: Docker Publish
 
 on:
   push:
@@ -6,35 +6,29 @@ on:
       - main
 
 jobs:
-  build-and-push:
-    name: Build and Push Docker Image
+  docker:
+    name: Build and Publish Docker Image
     runs-on: ubuntu-latest
-
     steps:
-    # Step 1: Checkout the repository
-    - name: Checkout Code
-      uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-    # Step 2: Log in to Docker Hub
-    - name: Log in to Docker Hub
-      uses: docker/login-action@v2
-      with:
-        username: ${{ secrets.DOCKER_USERNAME }}
-        password: ${{ secrets.DOCKER_PASSWORD }}
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
 
-    # Step 3: Build the Docker image with multiple tags
-    - name: Build Docker Image
-      run: |
-        # Define the semantic version (can be updated based on releases)
-        VERSION="v1.0.0"
-        
-        # Build and tag the Docker image
-        docker build -t ${{ secrets.DOCKER_USERNAME }}/java-sqs-client:latest .
-        docker tag ${{ secrets.DOCKER_USERNAME }}/java-sqs-client:latest ${{ secrets.DOCKER_USERNAME }}/java-sqs-client:${VERSION}
+      - name: Set version
+        id: version
+        run: echo "VERSION=v1.0.0" >> $GITHUB_ENV
 
-    # Step 4: Push the Docker image with both tags
-    - name: Push Docker Image
-      run: |
-        # Push both the latest and versioned tags
-        docker push ${{ secrets.DOCKER_USERNAME }}/java-sqs-client:latest
-        docker push ${{ secrets.DOCKER_USERNAME }}/java-sqs-client:${VERSION}
+      - name: Build Docker Image
+        run: |
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/java-sqs-client:latest ./java_sqs_client
+          docker tag ${{ secrets.DOCKER_USERNAME }}/java-sqs-client:latest ${{ secrets.DOCKER_USERNAME }}/java-sqs-client:${{ env.VERSION }}
+
+      - name: Push Docker Image
+        run: |
+          docker push ${{ secrets.DOCKER_USERNAME }}/java-sqs-client:latest
+          docker push ${{ secrets.DOCKER_USERNAME }}/java-sqs-client:${{ env.VERSION }}
