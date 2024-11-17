@@ -97,8 +97,8 @@ resource "aws_lambda_function" "image_processor" {
   runtime          = "python3.9"
   handler          = "lambda_sqs.lambda_handler"
   role             = aws_iam_role.lambda_execution_role.arn
-  filename         = "lambda/lambda_sqs.zip"
-  source_code_hash = filebase64sha256("lambda/lambda_sqs.zip")
+  filename         = "infra/lambda/lambda_sqs.zip"
+  source_code_hash = filebase64sha256("infra/lambda/lambda_sqs.zip")
 
 
   environment {
