@@ -34,24 +34,22 @@ jobs:
         with:
           terraform_version: 1.9.0
           
-      #Create the lamdbda_sqs.zip
+      # Step 4: Create the Lambda Zip
       - name: Create Lambda Zip
         working-directory: infra/lambda
         run: zip lambda_sqs.zip lambda_sqs.py
-
 
       # Step 5: Terraform Init
       - name: Terraform Init
         working-directory: infra
         run: terraform init
 
-      # Step 6: Terraform Plan (For non-main branches)
+      # Step 6: Terraform Plan (For all branches, including main)
       - name: Terraform Plan
-        if: github.ref != 'refs/heads/main'
         working-directory: infra
         run: terraform plan
 
-      # Step 7: Terraform Apply (For main branch)
+      # Step 7: Terraform Apply (For main branch only)
       - name: Terraform Apply
         if: github.ref == 'refs/heads/main'
         working-directory: infra
