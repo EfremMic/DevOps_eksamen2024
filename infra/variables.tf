@@ -9,14 +9,15 @@ variable "bucket_name" {
 
 variable "sqs_queue_name" {
   description = "The name of the SQS queue"
-  default     = "placeholder-queue-name" # Replace with a valid placeholder name
+  default     = "placeholder-queue-name" # Placeholder queue name - add value in terraform.tfvars
 }
 
 variable "notification_email" {
   description = "The email address to receive alarm notifications"
   type        = string
-  default     = "sensor-placeholder@example.com" # remove Placeholder email and add your email in terraform.tfvars
+  default     = "sensor-placeholder@example.com" # Placeholder email -- add value in terraform.tfvars
 }
+
 
 variable "alarm_threshold" {
   description = "Threshold in seconds for triggering the CloudWatch alarm"
