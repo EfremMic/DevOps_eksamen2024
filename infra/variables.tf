@@ -13,6 +13,8 @@ variable "sqs_queue_name" {
 
 variable "notification_email" {
   description = "The email address to receive alarm notifications"
+  type        = string
+  default     = "sensor-placeholder@example.com" # Placeholder email
 }
 
 variable "alarm_threshold" {
