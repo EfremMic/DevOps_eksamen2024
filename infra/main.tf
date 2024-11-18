@@ -118,3 +118,19 @@ resource "aws_lambda_event_source_mapping" "sqs_to_lambda" {
   batch_size       = 10
 }
 
+#--------------FOR OPPGAVE -4 --------------------------
+
+module "sns" {
+  source        = "./modules/sns"
+  notification_email = var.notification_email
+}
+
+module "cloudwatch" {
+  source            = "./modules/cloudwatch"
+  queue_name        = var.sqs_queue_name
+  sns_topic_arn     = module.sns.sns_topic_arn  # Reference the output from sns module
+  threshold         = var.alarm_threshold
+  evaluation_periods = var.alarm_evaluation_periods
+}
+
+#--------------------------------------------------------
