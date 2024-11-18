@@ -54,3 +54,7 @@ jobs:
         if: github.ref == 'refs/heads/main'
         working-directory: infra
         run: terraform apply -auto-approve
+        
+      - name: Terraform Plan
+        run: terraform plan -var="notification_email=${{ secrets.NOTIFICATION_EMAIL }}"
+
