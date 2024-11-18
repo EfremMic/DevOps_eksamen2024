@@ -14,7 +14,7 @@ variable "sqs_queue_name" {
 variable "notification_email" {
   description = "The email address to receive alarm notifications"
   type        = string
-  default     = "sensor-placeholder@example.com" # Placeholder email
+  default     = "sensor-placeholder@example.com" # remove Placeholder email and add your email in terraform.tfvars
 }
 
 variable "alarm_threshold" {

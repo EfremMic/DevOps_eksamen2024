@@ -58,3 +58,6 @@ jobs:
       - name: Terraform Plan
         run: terraform plan -var="notification_email=${{ secrets.NOTIFICATION_EMAIL }}"
 
+
+      - name: Terraform Plan
+        run: terraform plan -var="sqs_queue_name=${{ secrets.SQS_QUEUE_NAME }}"
