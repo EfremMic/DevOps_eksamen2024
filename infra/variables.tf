@@ -9,6 +9,7 @@ variable "bucket_name" {
 
 variable "sqs_queue_name" {
   description = "The name of the SQS queue"
+  default     = "placeholder-queue-name" # Replace with a valid placeholder name
 }
 
 variable "notification_email" {
