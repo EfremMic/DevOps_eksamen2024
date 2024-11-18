@@ -64,3 +64,5 @@ jobs:
       - name: Terraform Plan
         working-directory: infra
         run: terraform plan -var="sqs_queue_name=${{ secrets.SQS_QUEUE_NAME }}"
+
+    
