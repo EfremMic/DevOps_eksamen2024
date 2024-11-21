@@ -32,8 +32,8 @@ resource "aws_iam_role" "lambda_execution_role" {
     Version = "2012-10-17"
     Statement = [
       {
-        Action = "sts:AssumeRole"
-        Effect = "Allow"
+        Action    = "sts:AssumeRole"
+        Effect    = "Allow"
         Principal = {
           Service = "lambda.amazonaws.com"
         }
@@ -100,7 +100,6 @@ resource "aws_lambda_function" "image_processor" {
   filename         = "lambda/lambda_sqs.zip"
   source_code_hash = filebase64sha256("lambda/lambda_sqs.zip")
 
-
   environment {
     variables = {
       BUCKET_NAME = "pgr301-couch-explorers"
@@ -117,20 +116,3 @@ resource "aws_lambda_event_source_mapping" "sqs_to_lambda" {
   function_name    = aws_lambda_function.image_processor.arn
   batch_size       = 10
 }
-
-#--------------FOR OPPGAVE -4 --------------------------
-
-module "sns" {
-  source        = "./modules/sns"
-  notification_email = var.notification_email
-}
-
-module "cloudwatch" {
-  source            = "./modules/cloudwatch"
-  queue_name        = var.sqs_queue_name
-  sns_topic_arn     = module.sns.sns_topic_arn  # Reference the output from sns module
-  threshold         = var.alarm_threshold
-  evaluation_periods = var.alarm_evaluation_periods
-}
-
-#--------------------------------------------------------

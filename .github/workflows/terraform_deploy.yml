@@ -44,25 +44,13 @@ jobs:
         working-directory: infra
         run: terraform init
 
-      # Step 6: Terraform Plan (For all branches, including main)
+      # Step 6: Terraform Plan (All branches)
       - name: Terraform Plan
         working-directory: infra
-        run: terraform plan
+        run: terraform plan -var="notification_email=${{ secrets.NOTIFICATION_EMAIL }}" -var="sqs_queue_name=${{ secrets.SQS_QUEUE_NAME }}" -out=tfplan
 
       # Step 7: Terraform Apply (For main branch only)
       - name: Terraform Apply
         if: github.ref == 'refs/heads/main'
         working-directory: infra
-        run: terraform apply -auto-approve
-        
-      - name: Terraform Plan
-        working-directory: infra
-        run: terraform plan -var="notification_email=${{ secrets.NOTIFICATION_EMAIL }}"
-        
-
-
-      - name: Terraform Plan
-        working-directory: infra
-        run: terraform plan -var="sqs_queue_name=${{ secrets.SQS_QUEUE_NAME }}"
-
-    
+        run: terraform apply -auto-approve tfplan
