@@ -9,7 +9,7 @@ terraform {
 
   backend "s3" {
     bucket = "pgr301-2024-terraform-state"
-    key    = "infra/terraform.tfstate"
+    key    = "86/infra/terraform.tfstate"
     region = "eu-west-1"
   }
 }
