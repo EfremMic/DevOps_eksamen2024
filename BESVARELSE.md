@@ -51,7 +51,30 @@ Link to a working GitHub Actions workflow which has deployed the SAM application
 **SQS Sending & Receiving Test**
 
 - **Sending a message to the queue**
-- **Receiving the message:** For testing purposes, I had to add `--attributes VisibilityTimeout=3` to receive the message before it is consumed.
+
+  ```sh
+  aws sqs send-message \
+      --queue-url https://sqs.eu-west-1.amazonaws.com/244530008913/image-processing-queue-candidate-86 \
+      --message-body "Test message to verify without consumer" \
+      --region eu-west-1
+  ```
+
+  ```json
+  {
+      "MD5OfMessageBody": "1456f6f0841c7a48e39961c3020d4b66",
+      "MessageId": "e51352fe-f42d-449c-aaf4-35ac40847849"
+  }
+  ```
+
+- **Receiving the message**
+
+  ```sh
+  aws sqs receive-message \
+      --queue-url https://sqs.eu-west-1.amazonaws.com/244530008913/image-processing-queue-candidate-86 \
+      --region eu-west-1
+  ```
+
+  For testing purposes, I had to add `--attributes VisibilityTimeout=3` to receive the message before it is consumed.
 
 **NB! Potential Error when running the application using Terraform**
 
