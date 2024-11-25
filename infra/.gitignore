@@ -1,8 +1,27 @@
+# Ignore all zip files
 *.zip
+
 # Allow tracking of lambda_sqs.zip
 !lambda/lambda_sqs.zip
-terraform.tfvars
-.terraform/
-.terraform.lock.hcl
+
+# Terraform files and directories
+terraform.tfvars  # Typically contains sensitive data like credentials, should not be committed
+terraform.tfstate  # Contains current state of infrastructure
+terraform.tfstate.backup  # Backup of state file
+.tfplan  # Terraform plan output files
+tfplan.out  # Specific Terraform plan output
+.terraform/  # Folder containing plugins and other cached data
+.terraform.lock.hcl  # Optional, depends on team's preference
+
+# Python cache files
 __pycache__/
 *.pyc
+
+# Terraform binaries (if you have any extracted)
+terraform
+terraform.exe
+
+# Log files and temporary files
+logs get-log-events  # Example log file, you can adjust based on actual names
+--queue-url  # Temporary CLI artifacts, adjust as needed
+--region
