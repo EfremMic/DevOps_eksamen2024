@@ -4,7 +4,7 @@
 
 ### OPPGAVE 1
 
-#### OPPGAVE 1A - API URL
+#### OPPGAVE 1A
 
 We can retrieve the URL of API Gateway directly from CloudFormation outputs or we can use the AWS CLI to retrieve the URL. I chose the latter option:
 
@@ -46,16 +46,13 @@ Link to a working GitHub Actions workflow which has deployed the SAM application
 
 #### OPPGAVE 2B
 
-**Links to Terraform Deploy**
-
-
 **GitHub Actions workflow - main branch**
 
-`Update Terraform configuration and reset infrastructure · EfremMic/DevOps_eksamen2024@29d7142`
+`https://github.com/EfremMic/DevOps_eksamen2024/actions/runs/12019948725`
 
 **GitHub Actions workflow - feature/test-plan branch**
 
-`Update Terraform configuration and reset infrastructure · EfremMic/DevOps_eksamen2024@6a6a7f3`
+`https://github.com/EfremMic/DevOps_eksamen2024/actions/runs/11954250011`
 
 **SQS Queue URL**
 
