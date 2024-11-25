@@ -32,7 +32,7 @@ aws cloudformation describe-stacks --stack-name couch-explorers-lambda-rem-2024 
 
 #### Oppgave 1B - GitHub Actions Workflow
 
-Link to a working GitHub Actions workflow which has deployed the SAM application to AWS: **Deploy SAM Application · Workflow runs · EfremMic/DevOps_eksamen2024**
+Link to a working GitHub Actions workflow which has deployed the SAM application to AWS: `Deploy SAM Application · Workflow runs · EfremMic/DevOps_eksamen2024`
 
 
 ### OPPGAVE 2
@@ -40,9 +40,9 @@ Link to a working GitHub Actions workflow which has deployed the SAM application
 **Links to Terraform Deploy**
 
 - **GitHub Actions workflow - main branch**
-- **Update Terraform configuration and reset infrastructure:** EfremMic/DevOps_eksamen2024@29d7142
+- `Update Terraform configuration and reset infrastructure · EfremMic/DevOps_eksamen2024@29d7142`
 - **GitHub Actions workflow - feature/test-plan branch**
-- **Update Terraform configuration and reset infrastructure:** EfremMic/DevOps_eksamen2024@6a6a7f3
+- `Update Terraform configuration and reset infrastructure · EfremMic/DevOps_eksamen2024@6a6a7f3`
 
 **SQS Queue URL**
 
@@ -108,7 +108,7 @@ Can be found in `pgr301-2024-terraform-state/86`.
 
 **Reason:** This strategy offers flexibility by allowing team members to access both the latest image and a specific version.
 
-**Container Image / Docker Hub Image**
+**Container Image / Docker Hub Image** 
 
 Docker Hub repo: `efmi002/java-sqs-client`
 
