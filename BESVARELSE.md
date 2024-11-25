@@ -32,16 +32,20 @@ aws cloudformation describe-stacks --stack-name couch-explorers-lambda-rem-2024 
 
 #### Oppgave 1B - GitHub Actions Workflow
 
-Link to a working GitHub Actions workflow which has deployed the SAM application to AWS: `Deploy SAM Application · Workflow runs · EfremMic/DevOps_eksamen2024`
+Link to a working GitHub Actions workflow which has deployed the SAM application to AWS: 
+
+`https://github.com/EfremMic/DevOps_eksamen2024/actions/runs/12019758339/job/33507011553`
 
 
 ### OPPGAVE 2
+#### Oppgave 2B
 
 **Links to Terraform Deploy**
 
-- **GitHub Actions workflow - main branch**
+**GitHub Actions workflow - main branch**
 - `Update Terraform configuration and reset infrastructure · EfremMic/DevOps_eksamen2024@29d7142`
-- **GitHub Actions workflow - feature/test-plan branch**
+
+**GitHub Actions workflow - feature/test-plan branch**
 - `Update Terraform configuration and reset infrastructure · EfremMic/DevOps_eksamen2024@6a6a7f3`
 
 **SQS Queue URL**
@@ -89,7 +93,7 @@ If you choose to run the application by initializing and applying Terraform, you
   terraform import aws_iam_policy.example_policy_name arn:aws:iam::ACCOUNT_ID:policy/example_policy_name
   ```
 
-Replace `ACCOUNT_ID` with the account ID found in `variables_and_credentials.pdf`.
+Replace `ACCOUNT_ID` with my ID 
 
 **Terraform State File**
 
@@ -97,6 +101,7 @@ Can be found in `pgr301-2024-terraform-state/86`.
 
 
 ### OPPGAVE 3
+### OPPGAVE 3B
 
 **Tagging Strategy**
 
@@ -140,6 +145,7 @@ Docker Hub repo: [efmi002/java-sqs-client](https://hub.docker.com/r/efmi002/java
 
 
 ### OPPGAVE 4
+### OPPGAVE 4A
 
 **Metrics and Monitoring**
 
@@ -168,12 +174,6 @@ I was also able to verify the alarm creation and monitor the SQS queue in the AW
 **Simulation of the Alarm**
 
 Upon each commit, Terraform applies the configuration. Replace the values for `notification_email` and `sqs_queue_name` via GitHub Secret (you can use your own email).
-
-**Test**
-
-- `lambda_function_name = "image_processor_lambda_candidate-86"`
-- `s3_bucket_name = "pgr301-couch-explorers"`
-- `sqs_queue_url = "https://sqs.eu-west-1.amazonaws.com/244530008913/image-processing-queue-candidate-86"`
 
 
 ### OPPGAVE 5
