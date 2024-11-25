@@ -4,7 +4,7 @@
 
 ### OPPGAVE 1
 
-#### Oppgave 1A - API URL
+#### OPPGAVE 1A - API URL
 
 We can retrieve the URL of API Gateway directly from CloudFormation outputs or we can use the AWS CLI to retrieve the URL. I chose the latter option:
 
@@ -30,23 +30,32 @@ aws cloudformation describe-stacks --stack-name couch-explorers-lambda-rem-2024 
 - You should receive a status of 200.
 - The generated image can be found inside the bucket `Buckets/pgr301-couch-explorers/86`.
 
-#### Oppgave 1B - GitHub Actions Workflow
+
+
+#### OPPGAVE 1B 
+
+GitHub Actions Workflow
 
 Link to a working GitHub Actions workflow which has deployed the SAM application to AWS: 
 
 `https://github.com/EfremMic/DevOps_eksamen2024/actions/runs/12019758339/job/33507011553`
 
 
+
 ### OPPGAVE 2
-#### Oppgave 2B
+
+#### OPPGAVE 2B
 
 **Links to Terraform Deploy**
 
+
 **GitHub Actions workflow - main branch**
-- `Update Terraform configuration and reset infrastructure · EfremMic/DevOps_eksamen2024@29d7142`
+
+`Update Terraform configuration and reset infrastructure · EfremMic/DevOps_eksamen2024@29d7142`
 
 **GitHub Actions workflow - feature/test-plan branch**
-- `Update Terraform configuration and reset infrastructure · EfremMic/DevOps_eksamen2024@6a6a7f3`
+
+`Update Terraform configuration and reset infrastructure · EfremMic/DevOps_eksamen2024@6a6a7f3`
 
 **SQS Queue URL**
 
@@ -54,7 +63,10 @@ Link to a working GitHub Actions workflow which has deployed the SAM application
 
 **SQS Sending & Receiving Test**
 
-- **Sending a message to the queue**
+
+
+
+**Sending a message to the queue**
 
   ```sh
   aws sqs send-message \
@@ -80,6 +92,8 @@ Link to a working GitHub Actions workflow which has deployed the SAM application
 
   For testing purposes, I had to add `--attributes VisibilityTimeout=3` to receive the message before it is consumed.
 
+
+
 **NB! Potential Error when running the application using Terraform**
 
 If you choose to run the application by initializing and applying Terraform, you might come across an error during `terraform apply` related to IAM roles or policies. This occurs because Terraform attempts to create an IAM role or policy that already exists in my AWS account. To resolve this issue, you can import the IAM role and IAM policy using the following commands:
@@ -96,12 +110,14 @@ If you choose to run the application by initializing and applying Terraform, you
 Replace `ACCOUNT_ID` with my ID 
 
 **Terraform State File**
-
 Can be found in `pgr301-2024-terraform-state/86`.
 
 
+
+
+
 ### OPPGAVE 3
-### OPPGAVE 3B
+#### OPPGAVE 3B
 
 **Tagging Strategy**
 
@@ -145,7 +161,7 @@ Docker Hub repo: [efmi002/java-sqs-client](https://hub.docker.com/r/efmi002/java
 
 
 ### OPPGAVE 4
-### OPPGAVE 4A
+#### OPPGAVE 4A
 
 **Metrics and Monitoring**
 
