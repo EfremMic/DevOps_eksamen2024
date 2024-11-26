@@ -58,36 +58,6 @@ Link to a working GitHub Actions workflow which has deployed the SAM application
 
 `https://sqs.eu-west-1.amazonaws.com/244530008913/image-processing-queue-candidate-86`
 
-**SQS Sending & Receiving Test**
-
-
-
-
-**Sending a message to the queue**
-
-  ```sh
-  aws sqs send-message \
-      --queue-url https://sqs.eu-west-1.amazonaws.com/244530008913/image-processing-queue-candidate-86 \
-      --message-body "Test message to verify without consumer" \
-      --region eu-west-1
-  ```
-
-  ```json
-  {
-      "MD5OfMessageBody": "1456f6f0841c7a48e39961c3020d4b66",
-      "MessageId": "e51352fe-f42d-449c-aaf4-35ac40847849"
-  }
-  ```
-
-- **Receiving the message**
-
-  ```sh
-  aws sqs receive-message \
-      --queue-url https://sqs.eu-west-1.amazonaws.com/244530008913/image-processing-queue-candidate-86 \
-      --region eu-west-1
-  ```
-
-  For testing purposes, I had to add `--attributes VisibilityTimeout=3` to receive the message before it is consumed.
 
 
 
@@ -134,23 +104,12 @@ Docker Hub repo: `efmi002/java-sqs-client`
 
 `https://sqs.eu-west-1.amazonaws.com/244530008913/image-queue-candidate-86`
 
-**Solution Test**
+I understand the risks of sharing the SQS URL and AWS ID. This is a temporary 
+measure to enable your testing, with restricted permissions in place. 
+Access will be revoked immediately after testing.
 
-1. **Run the image:** Pull and run the image with your AWS credentials:
 
-    ```sh
-    docker run -e AWS_ACCESS_KEY_ID=xxx \
-              -e AWS_SECRET_ACCESS_KEY=yyy \
-              -e SQS_QUEUE_URL=https://sqs.eu-west-1.amazonaws.com/244530008913/image-queue-candidate-86 \
-              efmi002/java-sqs-client:latest \
-              "me on top of a pyramid"
-    ```
 
-    This will send a message to the SQS queue.
-
-**Queue Accessibility**
-
-The SQS queue has been made public for 60 days to facilitate testing.
 
 **Docker Hub**
 
